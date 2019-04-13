@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="./style.css">
+
+    <title>Programas TV</title>
+</head>
+
+<body>
+    <div>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+        <div id="tvMaze"
+            style="background-image: url('./background.jpg'); background-repeat: repeat-y; background-size: cover">
+            <div class="centrar">
+                <h1 style="color: white">TV MAZE</h1>
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <a class="navbar-brand" @click="verShowsIniciales()">Reto 4</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active" v-if="shows.length > 0" @click="verInicio()">
+                                <a class="nav-link">Resultado</a>
+                            </li>
+                            <li class="nav-item" v-if="favoritos.length > 0" @click="verFavoritos()">
+                                <a class="nav-link">Favoritos</a>
+                            </li>
+                        </ul>
+                        <form class="form-inline">
+                            <input id="txtBusqueda" v-model="showBusqueda" class="form-control mr-sm-2" type="search"
+                                placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success my-2 my-sm-0"
+                                @click="buscarShow($event)">Buscar</button>
+                        </form>
+                    </div>
+                </nav>
+
+            </div>
+            <div class="centrar" v-if="estadosApp.mirarTodos" v-for="info in shows">
+                <br>
+                <div class="card">
+                    <h5 class="card-header">{{info.name}}</h5>
+                    <div class="card-body">
+                        <h5 class="card-title"><strong>Genero: </strong> {{ info.genres | separarPorComa}}</h5>
+                        <div v-html="info.summary || noExiste" class="card-text"></div>
+                        <button @click="verMas(info)" class="btn btn-primary btnOpcion">Ver más información</button>
+                        <button @click="sumarFavorito(info)" class="btn btn-success btnOpcion">Añadir a
+                            favoritos</button>
+                    </div>
+                </div>
+                <br>
+            </div>
+            <div class="centrar" v-if="estadosApp.mirarFavoritos" v-for="info in favoritos">
+                <br>
+                <div class="card">
+                    <h5 class="card-header">{{info.name}}</h5>
+                    <div class="card-body">
+                        <h5 class="card-title"><strong>Genero: </strong> {{ info.genres | separarPorComa}}</h5>
+                        <div v-html="info.summary || noExiste" class="card-text"></div>
+                        <button @click="verMas(info)" class="btn btn-primary btnOpcion">Ver más información</button>
+                        <button @click="eliminarFavorito(info.id)" class="btn btn-danger btnOpcion">Eliminar</button>
+                    </div>
+                </div>
+                <br>
+            </div>
+            <div class="centrar" v-if="estadosApp.mirarUno">
+                <br>
+                <div class="card">
+                    <img v-if="show.image" :src="show.image.medium" class="img-fluid" alt="Responsive image">
+                    <div class="card-body">
+                        <h5 class="card-title">{{show.name}}</h5>
+                        <div v-html="show.summary || noExiste " class="card-text"></div>
+                        <p class="card-text"><strong>Status:&nbsp;</strong>{{show.status || noExiste }}</p>
+                        <p class="card-text"><strong>Language:&nbsp;</strong>{{show.language || noExiste }}</p>
+                        <a :href="show.url" target="_blank" class="btn btn-primary btnOpcion">Ver</a>
+                        <a class="btn btn-danger btnOpcion" @click="mostrarLista()">Regresar</a>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="estadosApp.mirarInicio" id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active centrar">
+                        <div class="card">
+                            <img src="./tvMaze.png" class="img-fluid" alt="Responsive image">
+                        </div>
+                    </div>
+                    <div class="carousel-item centrar" v-for="show in showsIniciales">
+                        <div class="card">
+                            <img v-if="show.image" :src="show.image.medium" class="img-fluid" alt="Responsive image">
+                            <div class="card-body">
+                                <h5 class="card-title">{{show.name}}</h5>
+                                <div v-html="show.summary || noExiste" class="card-text"></div>
+                                <p class="card-text"><strong>Status:&nbsp;</strong>{{show.status || noExiste }}</p>
+                                <p class="card-text"><strong>Language:&nbsp;</strong>{{show.language || noExiste }}</p>
+                                <button @click="sumarFavorito(show)" v-if="!estadosApp.mirarFavoritos"
+                                    class="btn btn-success btnOpcion">Añadir a
+                                    favoritos</button>
+                                <button @click="eliminarFavorito(show.id)" v-if="estadosApp.mirarFavoritos"
+                                    class="btn btn-danger btnOpcion">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+
+        <script src="./api.js"></script>
+    </div>
+</body>
+
+</html>

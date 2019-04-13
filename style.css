@@ -1,0 +1,12 @@
+.centrar{
+    text-align: center;
+}
+.card{
+    opacity: 0.7;
+    width: 150vh;
+    display: inline-block;
+}
+.btnOpcion{
+    width: 40%;
+}
+
